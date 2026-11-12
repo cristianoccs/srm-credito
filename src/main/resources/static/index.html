@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#123b4a" />
+  <meta name="description" content="Painel operacional do SRM Credit Engine" />
+  <title>SRM Credit Engine</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="SRM Credit Engine">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span><strong>SRM</strong><small>Credit Engine</small></span>
+      </a>
+      <div class="topbar-meta">
+        <span class="status-dot"><i></i> API operacional</span>
+        <span class="operator">Operador <b>CC</b></span>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <section class="intro-row">
+        <div>
+          <p class="eyebrow">OPERAÇÃO / CRÉDITO</p>
+          <h1>Painel de cessão</h1>
+          <p class="intro-copy">Simule recebíveis com precisão financeira e acompanhe as liquidações auditáveis em um só lugar.</p>
+        </div>
+        <div class="date-chip"><span class="live-pulse"></span><span id="currentDate">Atualizado agora</span></div>
+      </section>
+
+      <section class="metrics" aria-label="Indicadores do painel">
+        <article class="metric-card metric-primary"><span class="metric-label">Última simulação</span><strong id="metricNet">—</strong><small id="metricCurrency">Aguardando dados</small></article>
+        <article class="metric-card"><span class="metric-label">Deságio aplicado</span><strong id="metricDiscount">—</strong><small>Com base no prazo e tipo</small></article>
+        <article class="metric-card"><span class="metric-label">Liquidações no extrato</span><strong id="metricSettlements">—</strong><small id="metricPage">Página atual</small></article>
+      </section>
+
+      <section class="workspace-grid">
+        <article class="panel simulation-panel">
+          <div class="panel-heading">
+            <div><p class="eyebrow">01 / PRECIFICAÇÃO</p><h2>Nova simulação</h2></div>
+            <span class="panel-kicker">Sem efeito colateral</span>
+          </div>
+          <p class="panel-description">Ajuste os parâmetros. O cálculo é atualizado automaticamente pela API.</p>
+          <form id="simulationForm" class="simulation-form">
+            <div class="field field-wide">
+              <label for="faceValue">Valor de face <span>BRL</span></label>
+              <div class="input-wrap input-money"><span>R$</span><input id="faceValue" name="faceValue" type="number" min="0.01" step="0.01" value="100000" required /></div>
+            </div>
+            <div class="field"><label for="termMonths">Prazo <span>meses</span></label><div class="input-wrap"><input id="termMonths" name="termMonths" type="number" min="1" max="600" step="1" value="3" required /><span>meses</span></div></div>
+            <div class="field"><label for="receivableType">Tipo de recebível</label><select id="receivableType" name="type"><option value="DUPLICATA_MERCANTIL">Duplicata mercantil</option><option value="CHEQUE_PRE_DATADO">Cheque pré-datado</option></select></div>
+            <div class="field field-wide"><label for="paymentCurrency">Moeda de liquidação</label><div class="currency-options"><label class="currency-option selected"><input type="radio" name="paymentCurrency" value="BRL" checked /><span>BRL</span><small>Real brasileiro</small></label><label class="currency-option"><input type="radio" name="paymentCurrency" value="USD" /><span>USD</span><small>Dólar americano</small></label></div></div>
+            <div class="form-actions"><span id="simulationStatus" class="form-status" role="status">Preencha os dados para simular.</span><button class="button button-primary" type="submit"><span>Simular valor líquido</span><span aria-hidden="true">→</span></button></div>
+          </form>
+          <div id="simulationError" class="alert alert-error" hidden></div>
+        </article>
+
+        <aside class="panel result-panel" aria-live="polite">
+          <div class="result-topline"><span class="result-label">RESULTADO ESTIMADO</span><span id="resultBadge" class="badge badge-muted">Aguardando</span></div>
+          <div class="result-amount"><small id="resultCurrency">BRL</small><strong id="resultFinal">—</strong></div>
+          <p id="resultHint" class="result-hint">Execute uma simulação para visualizar o valor líquido.</p>
+          <div class="result-breakdown">
+            <div><span>Valor de face</span><strong id="resultFace">—</strong></div>
+            <div><span>Valor presente</span><strong id="resultPresent">—</strong></div>
+            <div><span>Deságio</span><strong id="resultDiscount">—</strong></div>
+            <div id="exchangeRow" hidden><span>Câmbio aplicado</span><strong id="resultExchange">—</strong></div>
+          </div>
+          <div class="result-footnote"><span class="lock-icon">⌁</span> Cálculo decimal com arredondamento bancário</div>
+        </aside>
+      </section>
+
+      <section class="panel statement-panel">
+        <div class="panel-heading statement-heading">
+          <div><p class="eyebrow">02 / CONTROLE</p><h2>Extrato de liquidações</h2></div>
+          <button id="refreshStatement" class="button button-quiet" type="button"><span aria-hidden="true">↻</span> Atualizar</button>
+        </div>
+        <div class="filters" role="search">
+          <label class="filter-field"><span>Cedente</span><input id="assignorFilter" type="search" placeholder="Buscar por cedente" /></label>
+          <label class="filter-field"><span>Moeda</span><select id="currencyFilter"><option value="">Todas as moedas</option><option value="BRL">BRL</option><option value="USD">USD</option></select></label>
+          <label class="filter-field"><span>De</span><input id="fromFilter" type="date" /></label>
+          <label class="filter-field"><span>Até</span><input id="toFilter" type="date" /></label>
+          <button id="filterStatement" class="button button-secondary" type="button">Filtrar</button>
+        </div>
+        <div class="table-shell"><table><thead><tr><th>Cedente</th><th>Recebível</th><th>Valor presente</th><th>Valor liquidado</th><th>Moeda</th><th>Data</th></tr></thead><tbody id="statementBody"><tr><td colspan="6" class="empty-state"><span class="empty-icon">◌</span><strong>Nenhuma liquidação encontrada</strong><small>As transações confirmadas aparecerão aqui.</small></td></tr></tbody></table></div>
+        <div class="table-footer"><span id="statementSummary">Nenhum registro para exibir</span><div class="pagination"><button id="previousPage" class="page-button" type="button" aria-label="Página anterior" disabled>←</button><span id="pageNumber">1 / 1</span><button id="nextPage" class="page-button" type="button" aria-label="Próxima página" disabled>→</button></div></div>
+      </section>
+    </main>
+    <footer class="footer"><span>SRM Credit Engine</span><span>Ambiente operacional · Dados auditáveis</span></footer>
+  </div>
+  <script src="/app.js" defer></script>
+</body>
+</html>

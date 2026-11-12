@@ -1,0 +1,40 @@
+erDiagram
+    RECEIVABLES ||--o| SETTLEMENTS : "pode gerar uma"
+    EXCHANGE_RATES ||--o{ SETTLEMENTS : "pode ser usada em"
+
+    RECEIVABLES {
+        uuid id PK
+        varchar assignor
+        numeric face_value
+        int term_months
+        date maturity_date
+        varchar type
+        varchar original_currency
+        varchar status
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    EXCHANGE_RATES {
+        uuid id PK
+        varchar base_currency
+        varchar quote_currency
+        numeric rate
+        timestamptz valid_from
+        timestamptz created_at
+    }
+
+    SETTLEMENTS {
+        uuid id PK
+        uuid receivable_id FK UK
+        varchar idempotency_key UK
+        numeric face_value_brl
+        numeric present_value_brl
+        numeric discount_brl
+        numeric final_amount
+        varchar payment_currency
+        uuid exchange_rate_id FK
+        numeric exchange_rate_value
+        timestamptz settled_at
+        timestamptz created_at
+    }
