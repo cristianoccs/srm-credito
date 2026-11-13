@@ -62,7 +62,7 @@
 
 ## Entrega e versionamento
 
-- [ ] Organizar commits com Conventional Commits e escopo rastreável.
+- [x] Organizar commits com Conventional Commits e escopo rastreável.
 - [x] Adicionar Docker Compose para aplicação e banco.
 - [x] Executar testes e build a partir de comandos documentados.
 - [x] Revisar o repositório como preparação para a defesa técnica ao vivo.
